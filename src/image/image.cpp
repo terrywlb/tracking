@@ -1,5 +1,8 @@
 #include "image.h"
 
+/*
+Changes
+*/
 Changes::Changes(int rad, int s)
 {
 	radius = rad;
@@ -21,3 +24,10 @@ void Changes::Dilate(IplImage * from, IplImage * to)
 {
 	cvDilate(from, to, ker, size);
 }
+
+
+/*
+	ThresholdingOp
+*/
+
+	

@@ -3,7 +3,6 @@
 
 bool colorFunc(int red, int green, int blue, COLOR clr, int clrVal)
 {
-    // std::cout<<red<<" "<<green<<" "<<blue<<" "<<std::endl;
     switch (clr)
     {
         case RED : if (red >= clrVal) return true;

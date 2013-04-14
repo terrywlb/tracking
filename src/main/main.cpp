@@ -23,12 +23,9 @@ int main( int argc, char* argv[] )
     while(true)
     {
         img = camera.TakeImage();
-        // imgCh = camera.TakeCopyImage();
-        // if (imgCh != 0) cvReleaseImage(&imgCh);
         imgCh = cvCloneImage(img);
         change.Erode(img, imgCh);
         lightKernel = find_Ker(imgCh, BLUE, 100);
-        // std::cout<<lightKernel.xL<<" "<<lightKernel.xH<<" "<<lightKernel.yL<<" "<<lightKernel.yH<<std::endl;
         print_rect(imgCh, &lightKernel, &color);
         cvShowImage("original",imgCh);
         char c = cvWaitKey(33); // Ждём
