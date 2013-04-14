@@ -3,35 +3,38 @@
 CamCapt::CamCapt()
 {
 	camID = 0;
-	capt = cvCreateCameraCapture(camID);
+	capture = cvCreateCameraCapture(camID);
+	image =  NULL;
 }
 
 CamCapt::~CamCapt()
 {
-	cvReleaseImage(capt);
+	cvReleaseCapture(&capture);
 	RealeseAllImages();
 }
 
 IplImage * CamCapt::ResieveImageFromCam()
 {
-	return cvCreateCameraCapture(camID);
+	return cvQueryFrame(capture);
 }
 
 void CamCapt::RealeseAllImages()
 {
-	cvReleaseImage(&image);
-	for (int i = 0; i < copyArray.size; ++i)
-		cvReleaseImage(&copyArray[i]);
+	while(!copyArray.empty())
+	{
+		cvReleaseImage(&(copyArray.top()));
+		copyArray.pop();
+	}
 }
 
 IplImage * CamCapt::TakeImage()
 {
 	RealeseAllImages();
-	IplImage = cvQueryFrame(capt);
+	return image = ResieveImageFromCam();
 }
 
-IplImage * CamCapt::TakeCopyImage();
+IplImage * CamCapt::TakeCopyImage()
 {
-	// appand at the end of array
-	copyArray[] = cvCloneImage(image);
+	copyArray.push(cvCloneImage(image));
+	return copyArray.top();
 }

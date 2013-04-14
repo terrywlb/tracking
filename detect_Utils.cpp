@@ -1,35 +1,82 @@
 #include "detect_Utils.h"
+#include <iostream>
 
+bool colorFunc(int red, int green, int blue, COLOR clr, int clrVal)
+{
+    // std::cout<<red<<" "<<green<<" "<<blue<<" "<<std::endl;
+    switch (clr)
+    {
+        case RED : if (red >= clrVal) return true;
+        case GREEN : if (green >= clrVal) return true;
+        case BLUE : if (blue >= clrVal) return true; 
+    }
+    return false;
+}
 
 // Version 1.0 - very simple. One light
-Ker find_Ker(const IplImage img, COLOR clr, int size)
+Ker find_Ker(const IplImage * img, COLOR clr, int colorVal)
 {
 
 	Ker res;
-    int x_ = x, i, tmp;
+    int xL, xH, y, i, tmp;
+    xH = img->width;
     uchar* line;
     bool flag;
-    while(++y < img_cam->height)
+
+    flag = false;
+    for (y = 0; y < img->height; ++y)
     {
-        line = (uchar*) (img_cam->imageData + y * img_cam->widthStep);
-        flag = false;
-        while(!(x > x_))
+        if(flag) break;
+        line = (uchar*) (img->imageData + y * img->widthStep);
+        for (xL = 0; xL < img->width; ++xL)
         {
-            if(!predicate(line[3 * x + 0], line[3 * x + 1], line[3 * x + 2])) {x++; flag = true;}
-            if(!predicate(line[3 * x_ + 0], line[3 * x_ + 1], line[3 * x_ + 2])) {x_--; flag = true;};
+            if(colorFunc(line[3 * xL + 2], line[3 * xL + 1], line[3 * xL + 0], clr, colorVal))
+            {
+                flag = true;
+                break;
+            }
+            if(flag) break;
+        }
+    }
+    res.yL = y;
+    res.yH = y;
+    res.xL = xL;
+    res.xH = xL;
+
+    while(++y < img->height)
+    {
+        line = (uchar*) (img->imageData + y * img->widthStep);
+        flag = false;
+        while(!(xL > xH))
+        {
+            if(!colorFunc(line[3 * xL + 2], line[3 * xL + 1], line[3 * xL + 0], clr, colorVal)) {xL++; flag = true;}
+            if(!colorFunc(line[3 * xH + 2], line[3 * xH + 1], line[3 * xH + 0], clr, colorVal)) {xH--; flag = true;}
             if (!flag) break;
             else flag = false;
         }
-        if(x > x_) break;
+        if(xL > xH) break;
 
-        while((x > 0) && predicate(line[3 * x + 0], line[3 * x + 1], line[3 * x + 2]))
-            x--;
-        if(box.x > x) box.x = x;
+        while((xL > 0) && colorFunc(line[3 * xL + 2], line[3 * xL + 1], line[3 * xL + 0], clr, colorVal))
+            xL--;
+        res.xL = (res.xL > xL)?xL:res.xL;
 
-        while((x_ < img_cam->width) && predicate(line[3 * x_ + 0], line[3 * x_ + 1], line[3 * x_ + 2]))
-            x_++;
-        if(box.width < (tmp = x_ - box.x)) box.width = tmp;
+        while((xH < img->width) && colorFunc(line[3 * xH + 2], line[3 * xH + 1], line[3 * xH + 0], clr, colorVal))
+            xH++;
+        res.xH = (res.xH < xH)?xL:res.xL;
 
-        box.height = y - box.y;
+        res.yH = y;
     }
+    return res;
+}
+
+void print_rect(IplImage * img, const Rect * rectangle, const CvScalar * lineClr)
+{
+    CvPoint points[] = {cvPoint(rectangle->xL, rectangle->yL), 
+                        cvPoint(rectangle->xL, rectangle->yH), 
+                        cvPoint(rectangle->xH, rectangle->yH), 
+                        cvPoint(rectangle->xH, rectangle->yL)};
+    cvLine( img, points[0], points[1], *lineClr, 1, 8);
+    cvLine( img, points[1], points[2], *lineClr, 1, 8);
+    cvLine( img, points[2], points[3], *lineClr, 1, 8);
+    cvLine( img, points[3], points[0], *lineClr, 1, 8);
 }
