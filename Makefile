@@ -29,6 +29,7 @@ collect_heades:
 
 link_obj:
 	cd $(OBJ_DIR); $(CC)  *.o -o $(PROJECT_NAME) $(LINK_FLAGS)
+	rm -rf $(BIN_DIR); mkdir $(BIN_DIR); mv $(OBJ_DIR)$(PROJECT_NAME) $(BIN_DIR)
 
 clean:
 	rm -rf ./$(OBJ_DIR)/
